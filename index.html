@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ProyectoEDA</title>
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+	<section class="principalContainer">
+		<div class="divBotones">
+			<button id="btnCreateVertice" class="btnCreateVertice">Crear Vértice</button>
+			<button id="btnCreateEdge" class="btnCreateEdge">Crear Arista</button>
+			<button id="btnRoute" class="btnRoute">Calcular Ruta</button>
+
+			<form action="#" class="formVertices form">
+				<label for="positionVertice">Posición del vértice en coordenadas (x,y)</label>
+				<div class="formRow">
+					<input type="number" id="positionX" min="0" max="100" placeholder="X">
+					<input type="number" id="positionY" min="0" max="100" placeholder="Y">
+				</div>
+
+				<label for="nameVertice">Nombre del vértice</label>
+				<div class="formRow">
+					<input type="text" id="nameVertice" placeholder="Nombre del vertice">
+					<input type="submit" id="btnCrearV" value="Crear vértice" class="btn"></input>
+				</div>
+			</form>
+
+			<form action="#" class="formEdges form">
+				<label for="initialV">Vértice inicial</label>
+				<select id="initialV"></select>
+
+				<label for="finalV">Vértice final</label>
+				<select id="finalV"></select>
+
+				<input type="submit" id="btnCrearE" value="Crear arista" class="btn"></input>
+			</form>
+
+			<form action="#" class="formCalculate form">
+				<label for="initialVC">Vértice inicial</label>
+				<select id="initialVC"></select>
+
+				<label for="finalVC">Vértice final</label>
+				<select id="finalVC"></select>
+
+				<input type="submit" id="btnCrearE" value="Calcular ruta" class="btn"></input>
+			</form>
+
+			<button id="btnClear" class="btnClear">Limpiar</button>
+		</div>
+
+		<div class="divMapa">
+			<div id="mapa"></div>
+		</div>
+	</section>
+
+	<script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/Vertice.js"></script>
+	<script src="js/Grafo.js"></script>
+	<script>
+		// Aquí comienza el uso del grafo en nuestro programa.
+		const grafo = new Grafo(2);
+		let number_of_vertex = 0;
+
+		$(document).ready(function() {
+			clearInformation();
+			console.log(grafo);
+			
+			$("#btnCreateVertice").click(function() {
+				clearForms();
+				$(".formVertices").slideDown(300);
+				$("#positionX").focus();
+			});
+
+			$("#btnCreateEdge").click(function() {
+				clearForms();
+				$(".formEdges").slideDown(300);
+				$("#positionX").focus();
+			});
+
+			$("#btnRoute").click(function() {
+				clearForms();
+				$(".formCalculate").slideDown(300);
+			});
+		});
+
+		$("#btnClear").click(function() {
+			clearInformation();
+		});
+
+		function clearInformation() {
+			$("#mapa").html('');
+			$(".form input:not(input[type='submit'])").val('');
+			$(".form select").val('');
+		}
+
+		function clearFormData() {
+			$(".form input:not(input[type='submit'])").val('');
+			$(".form select").val('');
+		}
+
+		function clearForms() {
+			$(".form").slideUp(300);
+		}
+
+		function fillSelects() {
+			let initialV = document.getElementById("initialV");
+			let finalV = document.getElementById("finalV");
+			let initialVC = document.getElementById("initialVC");
+			let finalVC = document.getElementById("finalVC");
+
+			for (value in grafo.vertices) {
+				let optionInitial = document.createElement("option");
+				optionInitial.text = grafo.vertices[value].name;
+				optionInitial.value = grafo.vertices[value].id;
+				initialV.add(optionInitial);
+
+				let optionInitialC = document.createElement("option");
+				optionInitialC.text = grafo.vertices[value].name;
+				optionInitialC.value = grafo.vertices[value].id;
+				initialVC.add(optionInitialC);
+
+				let optionFinal = document.createElement("option");
+				optionFinal.text = grafo.vertices[value].name;
+				optionFinal.value = grafo.vertices[value].id;
+				finalV.add(optionFinal);
+
+				let optionFinalC = document.createElement("option");
+				optionFinalC.text = grafo.vertices[value].name;
+				optionFinalC.value = grafo.vertices[value].id;
+				finalVC.add(optionFinalC);
+			}
+		}
+
+		$("#btnCrearV").click(function(e){
+			e.preventDefault();
+			let x = parseInt($("#positionX").val());
+			let y = parseInt($("#positionY").val());
+			let nameV = $("#nameVertice").val();
+
+			if (x >= 0 && y >= 0 && x <= 100 && y <= 100 && nameV != "" && x != null && y != null && nameV != null) {
+				grafo.addVertex(number_of_vertex, nameV, x, y);
+				number_of_vertex += 1;
+				grafo.printGraph();
+				$(".form select option").each(function() {
+					$(this).remove();
+				});
+				fillSelects();
+				clearFormData();
+				$("#positionX").focus();
+			} else {
+				alert("Por favor introduce los datos.");
+			}
+		});
+
+		$("#btnCrearE").click(function(e){
+			e.preventDefault();
+			let initialV = $("#initialV").val();
+			let finalV = $("#finalV").val();
+
+			if (initialV != "" && finalV != "" && initialV != null && finalV != null) {
+				grafo.addEdge(initialV, finalV);
+				grafo.printGraph();
+				clearFormData();
+			} else {
+				alert("Por favor introduce los datos.");
+			}
+		});
+
+		// $("#btnBuscarRuta").click(function() {
+		// 	let origen = $("#origen").val();
+		// 	let destino = $("#destino").val();
+
+		// 	if (origen != null && origen != "" && destino != null && destino != "") {
+		// 		if (origen != destino) {
+		// 			$("#alert").slideUp(300);
+		// 			$("#sectionMapa").html('');
+		// 			grafo.bfs(origen, destino);
+		// 		} else {
+		// 			$("#alert").slideDown(300);
+		// 		}
+		// 	} else {
+		// 		if (origen == null || origen == "") {
+		// 			alert("Por favor selecciona un punto de partida.");
+		// 		}
+
+		// 		if (destino == null || destino == "") {
+		// 			alert("Por favor selecciona un destino.");
+		// 		}
+		// 	}
+		// });
+	</script>
+</body>
+</html>
