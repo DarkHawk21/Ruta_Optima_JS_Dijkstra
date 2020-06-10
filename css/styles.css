@@ -27,8 +27,10 @@
 }
 
 #mapa {
-	width: 90%;
-	height: 90%;
+	width: 90vh;
+	height: 90vh;
+	max-width: 500px;
+	max-height: 500px;
 	background: #fff;
 }
 
