@@ -1,4 +1,8 @@
+// Este objeto almacena todo el contenido de nuestro grafo.
 const grafo = {};
+
+// Este objeto almacena todas las coordenadas de cada vertice.
+const coordenadas = {};
 
 // Esta función nos genera un mensaje indicando en que paso del algoritmo nos encontramos.
 function log(mensaje) {
@@ -90,32 +94,3 @@ const dijkstra = (grafo, nodoInicial, nodoFinal) => {
 
     return resultados;
 };
-
-grafo.vInicial = {
-	A: 5,
-	B: 2
-}
-
-grafo.A = {
-	vInicial: 1,
-	C: 4,
-	D: 2
-}
-
-grafo.B = {
-	A: 8,
-	D: 7
-}
-
-grafo.C = {
-	D: 6,
-	vFinal: 3
-}
-
-grafo.D = {
-	vFinal: 1
-}
-
-grafo.vFinal = {}
-
-console.log(dijkstra(grafo, "vInicial", "vFinal"));

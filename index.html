@@ -44,7 +44,7 @@
 				<label for="finalVC">Vértice final</label>
 				<select id="finalVC"></select>
 
-				<input type="submit" id="btnCrearE" value="Calcular ruta" class="btn"></input>
+				<input type="submit" id="btnCalcRoute" value="Calcular ruta" class="btn"></input>
 			</form>
 
 			<button id="btnClear" class="btnClear">Limpiar</button>
@@ -56,17 +56,10 @@
 	</section>
 
 	<script src="js/jquery-3.4.1.min.js"></script>
-	<script src="js/Vertice.js"></script>
-	<script src="js/Grafo.js"></script>
+	<script src="js/Dijkstra.js"></script>
 	<script>
-		// Aquí comienza el uso del grafo en nuestro programa.
-		const grafo = new Grafo(2);
-		let number_of_vertex = 0;
-
 		$(document).ready(function() {
 			clearInformation();
-			console.log(grafo);
-			draw();
 			
 			$("#btnCreateVertice").click(function() {
 				clearForms();
@@ -111,25 +104,47 @@
 			let initialVC = document.getElementById("initialVC");
 			let finalVC = document.getElementById("finalVC");
 
-			for (value in grafo.vertices) {
+			let optionDefault1 = document.createElement("option");
+			optionDefault1.text = "...";
+			optionDefault1.value = "";
+			initialV.add(optionDefault1);
+
+			let optionDefault2 = document.createElement("option");
+			optionDefault2.text = "...";
+			optionDefault2.value = "";
+			finalV.add(optionDefault2);
+
+			let optionDefault3 = document.createElement("option");
+			optionDefault3.text = "...";
+			optionDefault3.value = "";
+			initialVC.add(optionDefault3);
+
+			let optionDefault4 = document.createElement("option");
+			optionDefault4.text = "...";
+			optionDefault4.value = "";
+			finalVC.add(optionDefault4);
+
+			let nodos = Object.keys(grafo);
+
+			for (let i = 0; i < nodos.length; i++) {
 				let optionInitial = document.createElement("option");
-				optionInitial.text = grafo.vertices[value].name;
-				optionInitial.value = grafo.vertices[value].id;
+				optionInitial.text = nodos[i];
+				optionInitial.value = nodos[i];
 				initialV.add(optionInitial);
 
 				let optionInitialC = document.createElement("option");
-				optionInitialC.text = grafo.vertices[value].name;
-				optionInitialC.value = grafo.vertices[value].id;
+				optionInitialC.text = nodos[i];
+				optionInitialC.value = nodos[i];
 				initialVC.add(optionInitialC);
 
 				let optionFinal = document.createElement("option");
-				optionFinal.text = grafo.vertices[value].name;
-				optionFinal.value = grafo.vertices[value].id;
+				optionFinal.text = nodos[i];
+				optionFinal.value = nodos[i];
 				finalV.add(optionFinal);
 
 				let optionFinalC = document.createElement("option");
-				optionFinalC.text = grafo.vertices[value].name;
-				optionFinalC.value = grafo.vertices[value].id;
+				optionFinalC.text = nodos[i];
+				optionFinalC.value = nodos[i];
 				finalVC.add(optionFinalC);
 			}
 		}
@@ -141,15 +156,50 @@
 			let nameV = $("#nameVertice").val();
 
 			if (x >= 0 && y >= 0 && x <= 100 && y <= 100 && nameV != "" && x != null && y != null && nameV != null) {
-				grafo.addVertex(number_of_vertex, nameV, x, y);
-				number_of_vertex += 1;
-				grafo.printGraph();
-				$(".form select option").each(function() {
-					$(this).remove();
-				});
-				fillSelects();
-				clearFormData();
-				$("#positionX").focus();
+				let coordenada = [x,y];
+				let existe = false;
+				let queExiste = "";
+
+				if (Object.keys(coordenadas).length > 0) {
+					// Valida que las coordenadas no existan ya en el grafo.
+					for (const vertice in coordenadas) {
+						for (let i = 0; i < coordenadas[vertice].length; i++) {
+							if (coordenadas[vertice][0] == x && coordenadas[vertice][1] == y) {
+								existe = true;
+								queExiste += `Ya existen las coordenadas (${x},${y}) | `;
+								i = coordenadas[vertice].length;
+							}
+						}
+					}
+
+					// Valida que el nombre del vertice a ingresar no tenga el mismo nombre que alguno ya almacenado.
+					if ([nameV] in grafo) {
+						existe = true;
+						queExiste += `Ya existe un vertice con el nombre ${nameV} | `;
+					}
+
+					if (!existe) {
+						coordenadas[nameV] = [x,y];
+						grafo[nameV] = {};
+						$(".form select option").each(function() {
+							$(this).remove();
+						});
+						fillSelects();
+						clearFormData();
+						$("#positionX").focus();
+					} else {
+						alert(queExiste);
+					}
+				} else {
+					coordenadas[nameV] = [x,y];
+					grafo[nameV] = {};
+					$(".form select option").each(function() {
+						$(this).remove();
+					});
+					fillSelects();
+					clearFormData();
+					$("#positionX").focus();
+				}
 			} else {
 				alert("Por favor introduce los datos.");
 			}
@@ -161,88 +211,32 @@
 			let finalV = $("#finalV").val();
 
 			if (initialV != "" && finalV != "" && initialV != null && finalV != null) {
-				grafo.addEdge(initialV, finalV);
-				grafo.printGraph();
+				// Cuando es un digrafo, solo se añade el vecino al primer nodo (initialV).
+				let x1 = coordenadas[initialV][0];
+				let y1 = coordenadas[initialV][1];
+				let x2 = coordenadas[finalV][0];
+				let y2 = coordenadas[finalV][1];
+				let peso = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+				grafo[initialV][finalV] = Math.round(peso);
+				console.log("Se añadió una arista:");
+				console.log(grafo);
 				clearFormData();
 			} else {
 				alert("Por favor introduce los datos.");
 			}
 		});
-		
-		function draw(){
-			let canvas = document.getElementById('mapa');
 
-			if (canvas.getContext){
-				let ctx = canvas.getContext('2d');
+		$("#btnCalcRoute").click(function(e) {
+			e.preventDefault();
+			let initialV = $("#initialVC").val();
+			let finalV = $("#finalVC").val();
 
-				// ctx.beginPath();
-				// ctx.arc(75,75,50,0,Math.PI*2,true); // Círculo externo
-				// ctx.moveTo(110,75);
-				// ctx.arc(75,75,35,0,Math.PI,false);   // Boca (contra reloj)
-				// ctx.moveTo(65,65);
-				// ctx.arc(60,65,5,0,Math.PI*2,true);  // Ojo izquierdo
-				// ctx.moveTo(95,65);
-				// ctx.arc(90,65,5,0,Math.PI*2,true);  // Ojo derecho
-				// ctx.stroke();
-
-				// Triángulo rellenado
-				// ctx.beginPath();
-				// ctx.moveTo(25,25);
-				// ctx.lineTo(105,25);
-				// ctx.lineTo(25,105);
-				// ctx.fill();
-
-				// Triángulo contorneado
-				// ctx.beginPath();
-				// ctx.moveTo(125,125);
-				// ctx.lineTo(125,45);
-				// ctx.lineTo(45,125);
-				// ctx.closePath();
-				// ctx.stroke();
-
-				ctx.translate(0,canvas.height);
-				ctx.scale(1,-1);
-
-				// draw a simple rectangle, but scale it.
-				ctx.save();
-				ctx.scale(10, 3);
-				ctx.fillRect(1, 10, 10, 10);
-				ctx.restore();
-
-				// for (var i = 0; i < 3; i++) {
-				// 	for (var j = 0; j < 3; j++) {
-				// 	ctx.save();
-				// 	ctx.fillStyle = 'rgb(' + (51 * i) + ', ' + (255 - 51 * i) + ', 255)';
-				// 	ctx.translate(10 + j * 50, 10 + i * 50);
-				// 	ctx.fillRect(0, 0, 25, 25);
-				// 	ctx.restore();
-				// 	}
-				// }
+			if (initialV != "" && finalV != "" && initialV != null && finalV != null) {
+				console.log(dijkstra(grafo, initialV, finalV));
+			} else {
+				alert("Por favor introduce los datos.");
 			}
-		}
-    
-		// $("#btnBuscarRuta").click(function() {
-		// 	let origen = $("#origen").val();
-		// 	let destino = $("#destino").val();
-
-		// 	if (origen != null && origen != "" && destino != null && destino != "") {
-		// 		if (origen != destino) {
-		// 			$("#alert").slideUp(300);
-		// 			$("#sectionMapa").html('');
-		// 			grafo.bfs(origen, destino);
-		// 		} else {
-		// 			$("#alert").slideDown(300);
-		// 		}
-		// 	} else {
-		// 		if (origen == null || origen == "") {
-		// 			alert("Por favor selecciona un punto de partida.");
-		// 		}
-
-		// 		if (destino == null || destino == "") {
-		// 			alert("Por favor selecciona un destino.");
-		// 		}
-		// 	}
-		// });
+		});
 	</script>
 </body>
 </html>
