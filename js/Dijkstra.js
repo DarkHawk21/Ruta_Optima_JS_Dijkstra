@@ -1,4 +1,4 @@
-const problema = {};
+const grafo = {};
 
 // Esta función nos genera un mensaje indicando en que paso del algoritmo nos encontramos.
 function log(mensaje) {
@@ -10,10 +10,10 @@ function log(mensaje) {
 }
 
 // Esta función nos retorna el nodo con menor peso al que podemos acceder.
-const nodoPesoMenor = (pesos, procesado) => {
+const nodoPesoMenor = (pesos, procesados) => {
     return Object.keys(pesos).reduce((menor, nodo) => {
         if (menor === null || pesos[nodo] < pesos[menor]) {
-            if (!procesado.includes(nodo)) {
+            if (!procesados.includes(nodo)) {
                 menor = nodo;
             }
         }
@@ -25,7 +25,7 @@ const nodoPesoMenor = (pesos, procesado) => {
 const dijkstra = (grafo, nodoInicial, nodoFinal) => {
 	// Siguiendo el peso menor para llegar a cada nodo.
     let pesos = {};
-    pesos[nodoFinal] = "Infinito";
+    pesos[nodoFinal] = "Infinity";
     pesos = Object.assign(pesos, grafo[nodoInicial]);
 
     // Siguiendo los caminos / rutas al visitar cada nodo.
@@ -91,31 +91,31 @@ const dijkstra = (grafo, nodoInicial, nodoFinal) => {
     return resultados;
 };
 
-problema.vInicial = {
+grafo.vInicial = {
 	A: 5,
 	B: 2
 }
 
-problema.A = {
+grafo.A = {
 	vInicial: 1,
 	C: 4,
 	D: 2
 }
 
-problema.B = {
+grafo.B = {
 	A: 8,
 	D: 7
 }
 
-problema.C = {
+grafo.C = {
 	D: 6,
 	vFinal: 3
 }
 
-problema.D = {
+grafo.D = {
 	vFinal: 1
 }
 
-problema.vFinal = {}
+grafo.vFinal = {}
 
-console.log(dijkstra(problema, "vInicial", "vFinal"));
+console.log(dijkstra(grafo, "vInicial", "vFinal"));
