@@ -47,6 +47,8 @@
 				<input type="submit" id="btnCalcRoute" value="Calcular ruta" class="btn"></input>
 			</form>
 
+			<p id="distance"></p>
+
 			<button id="btnClear" class="btnClear">Limpiar</button>
 		</div>
 
@@ -177,9 +179,6 @@
 								grafo[initialV][finalV] = peso;
 								aristas.push([initialV, finalV]);
 								drawEdge(x1, y1, x2, y2, peso);
-								console.log("Se añadio arista");
-								console.log(grafo);
-								console.log(aristas);
 								clearFormData();
 							} else {
 								alert(queExiste);
@@ -188,9 +187,6 @@
 							grafo[initialV][finalV] = peso;
 							aristas.push([initialV, finalV]);
 							drawEdge(x1, y1, x2, y2, peso);
-							console.log("Se añadio arista por primera vez");
-							console.log(grafo);
-							console.log(aristas);
 							clearFormData();
 						}
 					} else {
@@ -207,7 +203,23 @@
 				let finalV = $("#finalVC").val();
 
 				if (initialV != "" && finalV != "" && initialV != null && finalV != null) {
-					console.log(dijkstra(grafo, initialV, finalV));
+					let dks = dijkstra(grafo, initialV, finalV);
+					let distance = dks['distancia'];
+					let route = dks['ruta'];
+
+					for (let i = 0; i < route.length; i++) {
+						if (i < (route.length - 1)) {
+							drawEdge(
+								coordenadas[route[i]][0], 
+								coordenadas[route[i]][1], 
+								coordenadas[route[i+1]][0], 
+								coordenadas[route[i+1]][1], 
+								null, 600, true
+							);
+							$("#distance").html(`<strong>Costo:</strong> ${distance}`);
+							$("#distance").slideDown(300);
+						}
+					}
 				} else {
 					alert("Por favor introduce los datos.");
 				}
@@ -258,7 +270,7 @@
 			}
 		}
 
-		function drawEdge(x1, y1, x2, y2, weight, size = 600) {
+		function drawEdge(x1, y1, x2, y2, weight = null, size = 600, optimalRoute = false) {
 			let escala = Math.round(size / 100);
 			let x1Pixel = x1 * escala;
 			let y1Pixel = y1 * escala;
@@ -268,12 +280,18 @@
 			let yMedioPixel = Math.round(((y1 + y2) / 2) * escala);
 
 			if (ctx) {
-				ctx.textAlign = "center";
-				ctx.font = "10pt Verdana Bold";
-				ctx.fillStyle = "#000000";
-				ctx.fillText(weight, xMedioPixel + 15, size - yMedioPixel);
-
-				ctx.strokeStyle="#7030A0";
+				if (optimalRoute) {
+					ctx.beginPath();
+					ctx.strokeStyle="#C00303";
+				} else {
+					ctx.textAlign = "center";
+					ctx.font = "10pt Verdana";
+					ctx.fillStyle = "#000000";
+					ctx.fillText(weight, xMedioPixel + 15, size - yMedioPixel);
+					ctx.beginPath();
+					ctx.strokeStyle="#7030A0";
+				}
+				
 				ctx.lineWidth = 3;
 				ctx.moveTo(x1Pixel, size - y1Pixel);
 				ctx.lineTo(x2Pixel, size - y2Pixel);
@@ -285,6 +303,8 @@
 			emptyCanvas();
 			$(".form input:not(input[type='submit'])").val('');
 			$(".form select").val('');
+			$("#distance").html('');
+			$("#distance").slideUp(300);
 		}
 
 		function clearFormData() {
