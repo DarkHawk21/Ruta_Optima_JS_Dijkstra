@@ -154,43 +154,47 @@
 				let finalV = $("#finalV").val();
 				
 				if (initialV != "" && finalV != "" && initialV != null && finalV != null) {
-					let x1 = coordenadas[initialV][0];
-					let y1 = coordenadas[initialV][1];
-					let x2 = coordenadas[finalV][0];
-					let y2 = coordenadas[finalV][1];
-					let peso = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
-					peso = Math.round(peso);
+					if (initialV != finalV) {
+						let x1 = coordenadas[initialV][0];
+						let y1 = coordenadas[initialV][1];
+						let x2 = coordenadas[finalV][0];
+						let y2 = coordenadas[finalV][1];
+						let peso = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+						peso = Math.round(peso);
 
-					if (aristas.length > 0) {
-						let existe = false;
-						let queExiste = `Ya existe una arista desde el vértice ${initialV} hasta el vértice ${finalV}.`;
+						if (aristas.length > 0) {
+							let existe = false;
+							let queExiste = `Ya existe una arista desde el vértice ${initialV} hasta el vértice ${finalV}.`;
 
-						for (let i = 0; i < aristas.length; i++) {
-							if (aristas[i][0] == initialV && aristas[i][1] == finalV) {
-								existe = true;
-								i = aristas.length;
+							for (let i = 0; i < aristas.length; i++) {
+								if (aristas[i][0] == initialV && aristas[i][1] == finalV) {
+									existe = true;
+									i = aristas.length;
+								}
 							}
-						}
 
-						if (!existe) {
+							if (!existe) {
+								grafo[initialV][finalV] = peso;
+								aristas.push([initialV, finalV]);
+								drawEdge(x1, y1, x2, y2, peso);
+								console.log("Se añadio arista");
+								console.log(grafo);
+								console.log(aristas);
+								clearFormData();
+							} else {
+								alert(queExiste);
+							}
+						} else {
 							grafo[initialV][finalV] = peso;
 							aristas.push([initialV, finalV]);
 							drawEdge(x1, y1, x2, y2, peso);
-							console.log("Se añadio arista");
+							console.log("Se añadio arista por primera vez");
 							console.log(grafo);
 							console.log(aristas);
 							clearFormData();
-						} else {
-							alert(queExiste);
 						}
 					} else {
-						grafo[initialV][finalV] = peso;
-						aristas.push([initialV, finalV]);
-						drawEdge(x1, y1, x2, y2, peso);
-						console.log("Se añadio arista por primera vez");
-						console.log(grafo);
-						console.log(aristas);
-						clearFormData();
+						alert(`No se puede conectar ${initialV} con ${finalV}, ya que son los mismos vértices. El sistema no lo acepta.`);
 					}
 				} else {
 					alert("Por favor introduce los datos.");
