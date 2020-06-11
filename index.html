@@ -58,8 +58,15 @@
 	<script src="js/jquery-3.4.1.min.js"></script>
 	<script src="js/Dijkstra.js"></script>
 	<script>
+		var canvas = document.getElementById("mapa");
+
+		if (canvas && canvas.getContext) {
+			var ctx = canvas.getContext("2d");
+		}
+
 		$(document).ready(function() {
 			clearInformation();
+			sizeCanvas();
 			
 			$("#btnCreateVertice").click(function() {
 				clearForms();
@@ -84,7 +91,7 @@
 		});
 
 		function clearInformation() {
-			$("#mapa").html('');
+			emptyCanvas();
 			$(".form input:not(input[type='submit'])").val('');
 			$(".form select").val('');
 		}
@@ -184,6 +191,7 @@
 						$(".form select option").each(function() {
 							$(this).remove();
 						});
+						drawVertex(x, y, 15, nameV);
 						fillSelects();
 						clearFormData();
 						$("#positionX").focus();
@@ -196,6 +204,7 @@
 					$(".form select option").each(function() {
 						$(this).remove();
 					});
+					drawVertex(x, y, 15, nameV);
 					fillSelects();
 					clearFormData();
 					$("#positionX").focus();
@@ -218,6 +227,7 @@
 				let y2 = coordenadas[finalV][1];
 				let peso = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 				grafo[initialV][finalV] = Math.round(peso);
+				drawEdge(x1, y1, x2, y2, peso);
 				console.log("Se añadió una arista:");
 				console.log(grafo);
 				clearFormData();
@@ -237,6 +247,59 @@
 				alert("Por favor introduce los datos.");
 			}
 		});
+		
+		function sizeCanvas(size = 600) {
+			canvas.width = size;
+			canvas.height = size;
+
+			ctx.strokeStyle = "#D9D9D9";
+
+			for (var x = 0; x <= 600; x += 6) {
+  				ctx.moveTo(x, 0);
+  				ctx.lineTo(x, 600);
+			}
+
+			for (var y = 0; y <= 600; y += 6) {
+				ctx.moveTo(0, y);
+				ctx.lineTo(600, y);
+			}
+
+			ctx.stroke();
+		}
+
+		function emptyCanvas(size = 600) {
+			canvas.width = size;
+		}
+
+		function drawVertex(x, y, r = 15, nameOfVertex, size = 600) {
+			let escala = Math.round(size / 100);
+			let xPixel = x * escala;
+			let yPixel = y * escala;
+
+			if (ctx) {
+				ctx.fillStyle = "#6ab150";
+				ctx.strokeStyle = "green";
+				ctx.lineWidth = 2;
+				ctx.beginPath();
+				ctx.arc(xPixel, size - yPixel, r, 0, 2 * Math.PI);
+				ctx.fill();
+				ctx.stroke();
+			}
+		}
+
+		function drawEdge(x1, y1, x2, y2, weight, size = 600) {
+			let escala = Math.round(size / 100);
+			let x1Pixel = x1 * escala;
+			let y1Pixel = y1 * escala;
+			let x2Pixel = x2 * escala;
+			let y2Pixel = y2 * escala;
+
+			if (ctx) {
+				ctx.moveTo(x1Pixel, size - y1Pixel);
+				ctx.lineTo(x2Pixel, size - y2Pixel);
+				ctx.stroke();
+			}
+		}
 	</script>
 </body>
 </html>
