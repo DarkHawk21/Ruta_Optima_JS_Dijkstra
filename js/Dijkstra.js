@@ -4,6 +4,9 @@ const grafo = {};
 // Este objeto almacena todas las coordenadas de cada vertice.
 const coordenadas = {};
 
+// Este arreglo almacena todas las aristas de conexión entre vértices.
+const aristas = [];
+
 // Esta función nos genera un mensaje indicando en que paso del algoritmo nos encontramos.
 function log(mensaje) {
 	const imprime = false;
